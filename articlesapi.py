@@ -7,25 +7,6 @@ app.config["DEBUG"] = True
 
 
 
-class auth_pass(BasicAuth):
-    def check_credentials(self, username, password):
-        conn = sqlite3.connect("ZL1API.db")
-        x = conn.cursor()
-        x.execute("SELECT password FROM user WHERE email=?",(username, ))
-        value = x.fetchone()
-        print(value)
-
-        if value != None:
-            
-            hashedpassword = hashlib.md5(password.encode())
-            if hashedpassword.hexdigest() == value[0]:
-                return True
-            else:
-                return False
-        else:
-            return False 
-
-basic_pass = auth_pass(app)
 
 
 #POST A NEW ARTICLE
@@ -34,19 +15,16 @@ basic_pass = auth_pass(app)
 #The author must be created before before an article can be posted, the author is a foreign key
 #If an error occurs it will reply with the error and 406 Not acceptable
 @app.route('/article', methods=['POST'])
-@basic_pass.required
 def postArticle():
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("articles.db")
     x = conn.cursor()
     data = request.get_json()
-    keyid = data["id"]
     keytext = data["text"]
     keytitle = data["title"]
     keyauthor = data["author"]
-    keyurl = '/article/' + keytitle + str(keyid)
-
+    keyurl = '/article/' + keytitle 
     try:
-        x.execute('INSERT INTO articles (id, title, content, datecreated , datemod, author, url) Values(?,?,?,?,?,?,? ) ',(keyid,keytitle, keytext,datetime.now(),datetime.now(),keyauthor,keyurl,))
+        x.execute('INSERT INTO articles (article_title, article_content, article_created , article_modified, article_users_author, article_url) Values(?,?,?,?,?,? ) ',(keytitle, keytext,datetime.now(),datetime.now(),keyauthor,keyurl,))
         conn.commit()
         x.close()
         return jsonify("CREATED") , 201
@@ -61,16 +39,21 @@ def postArticle():
 #If an error is occurs a 204 status will be returned not content found else if no error is found it will return a 200 OK
 @app.route("/article/<path:article>", methods=['GET'])
 def getArticle(article):
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("articles.db")
     x = conn.cursor()
     key = '/article/' + article
-    x.execute('SELECT * FROM articles WHERE url=?' , (key,))
-    value = x.fetchone()
-    x.close()
-    if value == None:
-        return "<h1>Article Not Found</h1>", 204
-    else:
-        return jsonify(value[2]),200
+
+    try:
+        x.execute('SELECT * FROM articles WHERE articles_url=?' , (key,))
+        value = x.fetchone()
+        x.close()
+        if value == None:
+            return "<h1>Article Not Found</h1>", 204
+        else:
+            return jsonify(value[2]),200
+    except Exception as er:
+        x.close()
+        return str(er), 406
 
 # EDIT AN INDIVIDUAL ARTICLE
 #This route gets activited when a PATCH is made. It does expect json 
@@ -78,32 +61,38 @@ def getArticle(article):
 #Example ----> /article/The Road Not Taken1 {Hit Enter}
 #If an error occurs it will reply with the error and 204 There was no article with that url
 @app.route("/article/<path:article>", methods=['PATCH'])
-@basic_pass.required
 def patchArticle(article):
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("articles.db")
     x = conn.cursor()
     data = request.get_json()
     keyid = '/article/' + article
     keytext = data ["text"]
-    x.execute("SELECT * FROM articles WHERE url =?", (keyid,))
-    value = x.fetchone()
-    if value != None:
-        x.execute('UPDATE articles SET content=?, datemod=? WHERE url=?' , (keytext, datetime.now(), keyid,))
-        conn.commit()
+    try:
+        x.execute("SELECT * FROM articles WHERE articles_url =?", (keyid,))
+        value = x.fetchone()
+        if value != None:
+            try:
+                x.execute('UPDATE articles SET articles_content=?, articles_modified=? WHERE articles_url=?' , (keytext, datetime.now(), keyid,))
+                conn.commit()
+                x.close()
+                return jsonify("UPDATED"), 202
+            except Exception as er:
+                x.close()
+                return str(er), 406
+        else:
+            x.close()
+            return jsonify("CONTENT NOT FOUND"), 204
+    except Exception as er:
         x.close()
-        return jsonify("UPDATED"), 202
-    else:
-        x.close()
-        return jsonify("CONTENT NOT FOUND"), 204
+        return str(er), 406
 
 #DELETE A SPECIFIC EXISTING ARTICLE
 #This route gets activited when a DELETE is made. It does expect json 
 #The json must contain and id
 #If an error occurs it will reply with the error and 204 There was no article with that id
 @app.route("/article/<path:article>", methods=['DELETE'])
-@basic_pass.required
 def deleteArticle(article):
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("articles.db")
     x = conn.cursor()
     key = '/article/' + article
     x.execute("SELECT * FROM articles WHERE url =?", (key,))
@@ -121,7 +110,7 @@ def deleteArticle(article):
 #RETRIEVE THE ENITRE CONTENTS (INCLUDING ARTICLE TEXT) FOR THE N MOST RECENT ARTICLE
 @app.route('/article/content', methods=['GET'] )
 def getArticleContent():
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("articles.db")
     x = conn.cursor()
     x.execute('SELECT articles.content , articles.author , tag.tag , comments.content FROM articles inner join tag on articles.url = tag.url inner join comments on tag.url = comments.url')
     value = x.fetchall()
@@ -140,7 +129,7 @@ def getArticleContent():
 #If an error is occurs a 204 status will be returned not content found else if no error is found it will return a 200 OK 
 @app.route('/article', methods=['GET'] )
 def getNthArticle():
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("articles.db")
     data = request.get_json()
     key = data["count"]
     x = conn.cursor()
