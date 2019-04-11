@@ -1,42 +1,26 @@
-import flask ,sqlite3, hashlib
+import flask ,sqlite3, hashlib, requests
 from datetime import datetime, date
 from flask import request, jsonify
 from flask_basicauth import BasicAuth 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
 
-class auth_User(BasicAuth):
-    def check_credentials(self, username, password):
-        conn = sqlite3.connect("ZL1API.db")
-        x = conn.cursor()
-        x.execute("SELECT password FROM user WHERE email=?",(username, ))
-        value = x.fetchone()
 
-        if value != None:
-            hashedpassword = hashlib.md5(password.encode())
-            if hashedpassword.hexdigest() == value[0]:
-                return True
-            else:
-                return False
-        else:
-            return False 
-                
-basic_auth = auth_User(app)
 
 # POST A NEW COMMENT ON AN ARTICLE
 @app.route('/comments/<path:article>', methods=['POST'])
 def postComment(article):
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("comments.db")
     x = conn.cursor()
     data = request.get_json()
     keycomment = data["comment"]
     keyauthor = data["author"]
     keyurl = '/article/' + article
-    x.execute("SELECT * FROM articles WHERE url =?", (keyurl,))
-    value = x.fetchone()
-    if value != None:
+    req = requests.get('http://localhost:5000'+ keyurl)
+    print(req.status_code)
+
+    if req.status_code == 200:
         try:
-            x.execute('INSERT INTO comments (content, url, author, date) Values(?,?,?,?) ',(keycomment, keyurl,keyauthor,datetime.now(),))
+            x.execute('INSERT INTO comments (comments_content, comments_articles_url, comments_users_author, comments_created) Values(?,?,?,?) ',(keycomment, keyurl,keyauthor,datetime.now(),))
             conn.commit()
             x.close()
             return jsonify("CREATED"), 201
@@ -45,12 +29,12 @@ def postComment(article):
             return str(er)
     else:
         x.close()
-        return jsonify("Article not found"), 402
+        return 'article not found', 404
+
 
 
 # DELETE AN INDIVIDUAL COMMENT 
 @app.route('/comments', methods=['DELETE'])
-@basic_auth.required
 def deleteComment():
     conn = sqlite3.connect("ZL1API.db")
     x = conn.cursor()

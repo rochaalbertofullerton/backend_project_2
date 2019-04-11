@@ -1,9 +1,9 @@
-import flask, sqlite3, hashlib
+import flask, sqlite3, hashlib, requests
 from datetime import datetime, date
 from flask import request , jsonify
 from flask_basicauth import BasicAuth 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+
 
 
 
@@ -24,7 +24,7 @@ def postArticle():
     keyauthor = data["author"]
     keyurl = '/article/' + keytitle 
     try:
-        x.execute('INSERT INTO articles (article_title, article_content, article_created , article_modified, article_users_author, article_url) Values(?,?,?,?,?,? ) ',(keytitle, keytext,datetime.now(),datetime.now(),keyauthor,keyurl,))
+        x.execute('INSERT INTO articles (articles_title, articles_content, articles_created , articles_modified, articles_users_author, articles_url) Values(?,?,?,?,?,? ) ',(keytitle, keytext,datetime.now(),datetime.now(),keyauthor,keyurl,))
         conn.commit()
         x.close()
         return jsonify("CREATED") , 201
@@ -95,23 +95,31 @@ def deleteArticle(article):
     conn = sqlite3.connect("articles.db")
     x = conn.cursor()
     key = '/article/' + article
-    x.execute("SELECT * FROM articles WHERE url =?", (key,))
-    value = x.fetchone()
-    if value != None:
-        x.execute('DELETE FROM articles WHERE url=?' , (key,))
-        conn.commit()
+    try:
+        x.execute("SELECT * FROM articles WHERE articles_url =?", (key,))
+        value = x.fetchone()
+        if value != None:
+            try:
+                x.execute('DELETE FROM articles WHERE articles_url=?' , (key,))
+                conn.commit()
+                x.close()
+                return jsonify("DELETED"), 202
+            except Exception as er:
+                x.close()
+                return str(er), 406
+        else:
+            x.close()
+            return jsonify("article does not exist"), 204
+    except Exception as er:
         x.close()
-        return jsonify("DELETED"), 202
-    else:
-        x.close()
-        return jsonify("article does not exist"), 204
-
+        return str(er), 406
 
 #RETRIEVE THE ENITRE CONTENTS (INCLUDING ARTICLE TEXT) FOR THE N MOST RECENT ARTICLE
 @app.route('/article/content', methods=['GET'] )
 def getArticleContent():
     conn = sqlite3.connect("articles.db")
     x = conn.cursor()
+    req= request.get('localhost:5000')
     x.execute('SELECT articles.content , articles.author , tag.tag , comments.content FROM articles inner join tag on articles.url = tag.url inner join comments on tag.url = comments.url')
     value = x.fetchall()
     x.close()
@@ -133,13 +141,17 @@ def getNthArticle():
     data = request.get_json()
     key = data["count"]
     x = conn.cursor()
-    x.execute('SELECT * FROM( SELECT * FROM articles ORDER BY datecreated DESC LIMIT ? )',(key,))
-    value = x.fetchall()
-    x.close()
-    if value == None:
-        return "<h1>Article Not Found</h1>", 204
-    else:
-        return jsonify(value),200
+    try:
+        x.execute('SELECT * FROM( SELECT * FROM articles ORDER BY articles_created DESC LIMIT ? )',(key,))
+        value = x.fetchall()
+        x.close()
+        if value == None:
+            return "<h1>Article Not Found</h1>", 204
+        else:
+            return jsonify(value),200
+    except Exception as er:
+        x.close()
+        return str(er), 406
 
 
 
