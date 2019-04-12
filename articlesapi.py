@@ -112,11 +112,15 @@ def deleteArticle(article):
         return str(er), 406
 
 #RETRIEVE THE ENITRE CONTENTS (INCLUDING ARTICLE TEXT) FOR THE N MOST RECENT ARTICLE
+
+'''
+        WE NEED TO ADD THE REQUEST TO HTTP
+
+'''
 @app.route('/article/content', methods=['GET'] )
 def getArticleContent():
     conn = sqlite3.connect("articles.db")
     x = conn.cursor()
-    req= request.get('localhost:5000')
     x.execute('SELECT articles.content , articles.author , tag.tag , comments.content FROM articles inner join tag on articles.url = tag.url inner join comments on tag.url = comments.url')
     value = x.fetchall()
     x.close()
@@ -132,6 +136,10 @@ def getArticleContent():
 #This route will get the most recent article added to the database
 #It will RETURN the whole row with all informtion 
 #If an error is occurs a 204 status will be returned not content found else if no error is found it will return a 200 OK 
+'''
+        WE NEED TO ADD THE REQUEST TO HTTP
+
+'''
 @app.route('/article', methods=['GET'] )
 def getNthArticle():
     conn = sqlite3.connect("articles.db")

@@ -7,10 +7,7 @@ app = flask.Flask(__name__)
 
 
 # POST A NEW COMMENT ON AN ARTICLE
-'''
-        WE NEED TO ADD THE REQUEST TO HTTP
 
-'''
 @app.route('/comments/<path:article>', methods=['POST'])
 def postComment(article):
     conn = sqlite3.connect("comments.db")
@@ -55,16 +52,13 @@ def deleteComment():
 
     
 # RETRIEVE THE NUMBER OF COMMENTS ON A GIVEN ARTICLE
-'''
-        WE NEED TO ADD THE REQUEST TO HTTP
 
-'''
 @app.route('/comments/<path:article>', methods=['GET'])
 def getcommentsforarticle(article):
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("comments.db")
     x = conn.cursor()
     keyarticle = '/article/' + article
-    x.execute('SELECT content  FROM comments WHERE url=?', (keyarticle,))
+    x.execute('SELECT comments_content  FROM comments WHERE comments_articles_url=?', (keyarticle,))
     value = x.fetchall()
     if value != []:
         x.close()
@@ -75,17 +69,13 @@ def getcommentsforarticle(article):
 
 
 # RETRIEVE THE 'N' MOST RECENT COMMENTS ON AN URL
-'''
-        WE NEED TO ADD THE REQUEST TO HTTP
-
-'''
 @app.route('/comments', methods=['GET'] )
 def getNthArticle():
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("comments.db")
     data = request.get_json()
     key = data["count"]
     x = conn.cursor()
-    x.execute('SELECT * FROM( SELECT content FROM comments ORDER BY date DESC LIMIT ? )',(key,))
+    x.execute('SELECT * FROM( SELECT comments_content FROM comments ORDER BY comments_dates DESC LIMIT ? )',(key,))
     value = x.fetchall()
     x.close()
     if value == None:
