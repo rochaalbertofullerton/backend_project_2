@@ -6,9 +6,6 @@ app = flask.Flask(__name__)
 
 
 
-
-
-
 #POST A NEW ARTICLE
 #This route gets activited when a POST is made. It does expect json 
 #The json must contain and id, text, title, author
@@ -30,7 +27,7 @@ def postArticle():
         return jsonify("CREATED") , 201
     except Exception as er:
         x.close()
-        return str(er), 406
+        return str(er), 400
 
 
 #RETREVE AN INDIVIDUAL ARTICLE
@@ -53,7 +50,7 @@ def getArticle(article):
             return jsonify(value[2]),200
     except Exception as er:
         x.close()
-        return str(er), 406
+        return str(er), 400
 
 # EDIT AN INDIVIDUAL ARTICLE
 #This route gets activited when a PATCH is made. It does expect json 

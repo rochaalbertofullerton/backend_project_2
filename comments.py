@@ -7,6 +7,10 @@ app = flask.Flask(__name__)
 
 
 # POST A NEW COMMENT ON AN ARTICLE
+'''
+        WE NEED TO ADD THE REQUEST TO HTTP
+
+'''
 @app.route('/comments/<path:article>', methods=['POST'])
 def postComment(article):
     conn = sqlite3.connect("comments.db")
@@ -36,24 +40,25 @@ def postComment(article):
 # DELETE AN INDIVIDUAL COMMENT 
 @app.route('/comments', methods=['DELETE'])
 def deleteComment():
-    conn = sqlite3.connect("ZL1API.db")
+    conn = sqlite3.connect("comments.db")
     x = conn.cursor()
     data = request.get_json()
     key = data["id"]
-    x.execute('SELECT * FROM comments WHERE id=?', (key,))
-    value = x.fetchone()
-
-    if value != None:
-        x.execute('DELETE FROM comments WHERE id=? ', (key,))
+    try:
+        x.execute('DELETE FROM comments WHERE comments_id=? ', (key,))
         conn.commit()
         x.close()
         return "DELETED", 202
-    else:
+    except Exception as er:
         x.close()
-        return jsonify("CONTENT NOT FOUND"), 402
+        return str(er), 204
 
     
 # RETRIEVE THE NUMBER OF COMMENTS ON A GIVEN ARTICLE
+'''
+        WE NEED TO ADD THE REQUEST TO HTTP
+
+'''
 @app.route('/comments/<path:article>', methods=['GET'])
 def getcommentsforarticle(article):
     conn = sqlite3.connect("ZL1API.db")
@@ -70,6 +75,10 @@ def getcommentsforarticle(article):
 
 
 # RETRIEVE THE 'N' MOST RECENT COMMENTS ON AN URL
+'''
+        WE NEED TO ADD THE REQUEST TO HTTP
+
+'''
 @app.route('/comments', methods=['GET'] )
 def getNthArticle():
     conn = sqlite3.connect("ZL1API.db")
