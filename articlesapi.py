@@ -45,7 +45,7 @@ def getArticle(article):
         value = x.fetchone()
         x.close()
         if value == None:
-            return "<h1>Article Not Found</h1>", 204
+            return "<h1>Article Not Found</h1>", 400
         else:
             return jsonify(value[2]),200
     except Exception as er:
