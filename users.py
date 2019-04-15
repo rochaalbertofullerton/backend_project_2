@@ -25,7 +25,6 @@ def postUser():
         return str(er), 400
 
 
-#Implement Authentication in DELETE/CHANGE PASSWORD ==== 
 @app.route('/users', methods=['DELETE'])
 def delete_user(): 
     conn = sqlite3.connect("users.db")

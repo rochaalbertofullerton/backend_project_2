@@ -1,4 +1,4 @@
-import flask, sqlite3, hashlib, requests
+import flask, requests, sqlite3
 from datetime import datetime, date
 from flask import request , jsonify
 from flask_basicauth import BasicAuth 
@@ -19,7 +19,7 @@ def postArticle():
     keytext = data["text"]
     keytitle = data["title"]
     keyauthor = data["author"]
-    keyurl = '/article/' + keytitle 
+    keyurl = '/article/' + keytitle.replace(" ", "") 
     try:
         x.execute('INSERT INTO articles (articles_title, articles_content, articles_created , articles_modified, articles_users_author, articles_url) Values(?,?,?,?,?,? ) ',(keytitle, keytext,datetime.now(),datetime.now(),keyauthor,keyurl,))
         conn.commit()

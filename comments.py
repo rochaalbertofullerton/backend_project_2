@@ -16,8 +16,7 @@ def postComment(article):
     keycomment = data["comment"]
     keyauthor = data["author"]
     keyurl = '/article/' + article
-    req = requests.get('http://localhost:5000'+ keyurl)
-    print(req.status_code)
+    req = requests.get('http://localhost:5001'+ keyurl)
 
     if req.status_code == 200:
         try:
@@ -58,7 +57,7 @@ def getcommentsforarticle(article):
     conn = sqlite3.connect("comments.db")
     x = conn.cursor()
     keyarticle = '/article/' + article
-    x.execute('SELECT comments_content  FROM comments WHERE comments_articles_url=?', (keyarticle,))
+    x.execute('SELECT count(*)  FROM comments WHERE comments_articles_url=?', (keyarticle,))
     value = x.fetchall()
     if value != []:
         x.close()
@@ -69,13 +68,14 @@ def getcommentsforarticle(article):
 
 
 # RETRIEVE THE 'N' MOST RECENT COMMENTS ON AN URL
-@app.route('/comments', methods=['GET'] )
-def getNthArticle():
+@app.route('/comments/get/<path:article>', methods=['GET'] )
+def getNthArticle(article):
     conn = sqlite3.connect("comments.db")
     data = request.get_json()
     key = data["count"]
+    keyarticle = '/article/' + article
     x = conn.cursor()
-    x.execute('SELECT * FROM( SELECT comments_content FROM comments ORDER BY comments_dates DESC LIMIT ? )',(key,))
+    x.execute('SELECT * FROM( SELECT comments_content FROM comments where comments_articles_url = ? ORDER BY comments_created DESC LIMIT ?)',(keyarticle, key,))
     value = x.fetchall()
     x.close()
     if value == None:
