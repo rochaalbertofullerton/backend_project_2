@@ -129,7 +129,6 @@ def getArticleContent():
     for t in value:
 
         split = t[1].split('/')
-        #reqarticle=requests.get('http://localhost/article/'+split[2], auth=('admin@email.com', 'adminpassword'))
         reqtag= requests.get('http://localhost/tag/'+split[2],json={"count" : key} , auth=('admin@email.com', 'adminpassword'))
         reqcomment=requests.get('http://localhost/comment/'+split[2],json={"count" : key} , auth=('admin@email.com', 'adminpassword'))
         c ={'content' : t[0],

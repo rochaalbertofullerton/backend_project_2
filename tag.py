@@ -16,7 +16,7 @@ def postTag(article):
     data = request.get_json()
     keytag = data["tag"]
     keyurl ='/article/' + article
-    req = requests.get('http://localhost:5000'+keyurl)
+    req = requests.get('http://localhost/article/'+article, auth=('admin@email.com', 'adminpassword'))
 
     if req.status_code == 200:
         try:
@@ -42,13 +42,13 @@ def deleteArticle(article):
     data = request.get_json()
     key = data["tag"]
     keyurl ='/article/' + article
-    req = requests.get('http://localhost/article'+keyurl)
+    req = requests.get('http://localhost/article/'+article, auth=('admin@email.com', 'adminpassword'))
     
     if req.status_code == 200:
-        x.execute('SELECT * FROM tag WHERE url=? AND tag=?' , (keyurl,key,))
+        x.execute('SELECT * FROM tags WHERE tags_articles_url=? AND tags_content=?' , (keyurl,key,))
         valuetag = x.fetchone()
         if valuetag != None:
-            x.execute('DELETE FROM tag WHERE tag=? AND  url=?' , (key,keyurl,))
+            x.execute('DELETE FROM tags WHERE tags_content=? AND  tags_articles_url=?' , (key,keyurl,))
             conn.commit()
             x.close()
             return "DELETED" , 202
@@ -62,12 +62,11 @@ def deleteArticle(article):
 
 #RETRIEVE THE A LIST URLS WITH A GIVEN TAG
 #Example ----> /tag/The Road Not Taken1 {Hit Enter}
-@app.route("/tag/get/<path:article>", methods=['GET'])
-def getarticleswithTag(article):
+@app.route("/tag/get/<path:tag>", methods=['GET'])
+def getarticleswithTag(tag):
     conn = sqlite3.connect("tags.db")
-    keytag = '/article/' + article
     x = conn.cursor()
-    x.execute('SELECT tags_articles_url  FROM tags WHERE tags_content=?', (keytag,))
+    x.execute('SELECT tags_articles_url  FROM tags WHERE tags_content=?', (tag,))
     value = x.fetchall()
     if value != []:
         x.close()

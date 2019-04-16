@@ -78,10 +78,4 @@ def auth():
     else:
         return jsonify(b),403
 
-
-    
-
-
-   
-
 app.run()

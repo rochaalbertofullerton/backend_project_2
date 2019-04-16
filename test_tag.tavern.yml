@@ -1,0 +1,71 @@
+test_name: Tags
+
+stages:
+  - name: Add an article with a new tag
+    request:
+      url: "http://localhost/tag/Athena"
+      auth:
+        - studentb@email.com
+        - student
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        tag: wise
+    response:
+      status_code: 201
+
+  - name: List all articles with the new tag
+    request:
+      url: "http://localhost/tag/get/wise"
+      auth:
+        - studentb@email.com
+        - student
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 202
+
+  - name: Add another tag to the article
+    request:
+      url: "http://localhost/tag/Athena"
+      auth:
+        - studentb@email.com
+        - student
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        tag: wise2
+    response:
+      status_code: 201
+
+
+  - name: Delete one of the tags from the article
+    request:
+      url: "http://localhost/tag/Athena"
+      auth:
+        - studentb@email.com
+        - student
+      method: DELETE
+      headers:
+        content-type: application/json
+      json:
+        tag: wise2
+    response:
+      status_code: 202
+
+  - name: Add a tag to an article that doesn't exist
+    request:
+      url: "http://localhost/tag/TheNew"
+      auth:
+        - studentb@email.com
+        - student
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        tag: wise2
+    response:
+      status_code: 404

@@ -1,0 +1,74 @@
+test_name: Users
+
+stages:
+  - name: Try to change the password for a user that does not exist
+    request:
+      url: "http://localhost/user"
+      auth:
+        - studentb@email.com
+        - student
+      method: PATCH
+      headers:
+        content-type: application/json
+      json:
+        email: FAKENEWS@email.com
+        password : fake
+    response:
+      status_code: 404
+
+  - name: Create a user
+    request:
+      url: "http://localhost/user/new"
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+          name: Sir Dell
+          email: "sirdell@email.com"
+          password: "sirdell"
+    response:
+      status_code: 201
+
+  - name: Change a user's password
+    request:
+      url: "http://localhost/user"
+      auth:
+        - studentb@email.com
+        - student
+      method: PATCH
+      headers:
+        content-type: application/json
+      json:
+        email: sirdell@email.com
+        password: sirdell2
+    response:
+      status_code: 202
+
+  - name: Delete the user
+    request:
+      url: "http://localhost/user"
+      auth:
+        - studentb@email.com
+        - student
+      method: DELETE
+      headers:
+        content-type: application/json
+      json:
+        email: sirdell@email.com
+    response:
+      status_code: 202
+
+  - name: Try to change the password for the deleted user
+    request:
+      url: "http://localhost/user"
+      auth:
+        - studentb@email.com
+        - student
+      method: PATCH
+      headers:
+        content-type: application/json
+      json:
+        email: sirdell@email.com
+        password: sirdell
+    response:
+      status_code: 404

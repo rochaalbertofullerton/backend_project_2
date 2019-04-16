@@ -1,0 +1,58 @@
+test_name: Article Test
+
+stages:
+  - name: Try to post an article without authenticating
+    request:
+      url: http://localhost/article
+      json:
+        title: The New
+        author: StudentB
+        text: The new will become the old
+      method: POST
+
+    response:
+      status_code: 500
+  - name: Try a post an article using the wrong password
+    request:
+      url: "http://localhost/article"
+      auth:
+        - studentb@email.com
+        - password123
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        title: The New
+        author: StudentB
+        text: The new will become the old
+    response:
+      status_code: 403
+  - name: Post an article successfully
+    request:
+      url: "http://localhost/article"
+      auth:
+        - studentb@email.com
+        - student
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        title: The New
+        author: StudentB
+        text: The new will become the old
+    response:
+      status_code: 201
+  - name: Retrieve the newly posted article
+    request:
+      url: "http://localhost/article/TheNew"
+      auth:
+        - studentb@email.com
+        - student
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+
+
+ 
