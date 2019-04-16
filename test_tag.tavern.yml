@@ -1,4 +1,4 @@
-test_name: Tags
+test_name: Tag
 
 stages:
   - name: Add an article with a new tag

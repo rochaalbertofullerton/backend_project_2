@@ -1,4 +1,4 @@
-test_name: Article Test
+test_name: Article 
 
 stages:
   - name: Try to post an article without authenticating
