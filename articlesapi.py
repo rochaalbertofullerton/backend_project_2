@@ -113,10 +113,7 @@ def deleteArticle(article):
 
 #RETRIEVE THE ENITRE CONTENTS (INCLUDING ARTICLE TEXT) FOR THE N MOST RECENT ARTICLE
 
-'''
-        WE NEED TO ADD THE REQUEST TO HTTP
 
-'''
 @app.route('/article/content', methods=['GET'] )
 def getArticleContent():
     conn = sqlite3.connect("articles.db")
@@ -149,10 +146,7 @@ def getArticleContent():
 #This route will get the most recent article added to the database
 #It will RETURN the whole row with all informtion 
 #If an error is occurs a 204 status will be returned not content found else if no error is found it will return a 200 OK 
-'''
-        WE NEED TO ADD THE REQUEST TO HTTP
 
-'''
 @app.route('/article', methods=['GET'] )
 def getNthArticle():
     conn = sqlite3.connect("articles.db")
