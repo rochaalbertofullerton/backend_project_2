@@ -16,7 +16,7 @@ def postComment(article):
     keycomment = data["comment"]
     keyauthor = data["author"]
     keyurl = '/article/' + article
-    req = requests.get('http://localhost:5001'+ keyurl)
+    req = requests.get('http://localhost/article'+keyurl)
 
     if req.status_code == 200:
         try:

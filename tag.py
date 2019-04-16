@@ -42,7 +42,7 @@ def deleteArticle(article):
     data = request.get_json()
     key = data["tag"]
     keyurl ='/article/' + article
-    req = requests.get('http://localhost:5000'+keyurl)
+    req = requests.get('http://localhost/article'+keyurl)
     
     if req.status_code == 200:
         x.execute('SELECT * FROM tag WHERE url=? AND tag=?' , (keyurl,key,))

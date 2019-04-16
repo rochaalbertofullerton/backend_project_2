@@ -147,7 +147,7 @@ def getNthArticle():
     key = data["count"]
     x = conn.cursor()
     try:
-        x.execute('SELECT * FROM( SELECT * FROM articles ORDER BY articles_created DESC LIMIT ? )',(key,))
+        x.execute('SELECT * FROM( SELECT articles_title, articles_users_author, articles_created, articles_url FROM articles ORDER BY articles_created DESC LIMIT ? )',(key,))
         value = x.fetchall()
         x.close()
         if value == None:
