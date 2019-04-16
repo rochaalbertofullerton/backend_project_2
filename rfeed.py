@@ -8,7 +8,7 @@ app = flask.Flask(__name__)
 
 @app.route('/summary', methods=['GET'])
 def getsummary():
-    req= requests.get('http://localhost/article',json={"count" : 3} , auth=('admin@email.com', 'adminpassword'))
+    req= requests.get('http://localhost/article',json={"count" : 10} , auth=('admin@email.com', 'adminpassword'))
     value = req.json()
 
    
@@ -22,7 +22,8 @@ def getsummary():
     for x in value:
         fe = fg.add_entry()
         fe.title(x[0])
-        fe.author({'name' :x[1]})
+        fe.category(term= "Author "+ x[1])
+        fe.category(term= "Date "+ x[2])
         fe.link(href="http://localhost"+x[3])
   
     fg.rss_file('summary_10.xml')
@@ -31,7 +32,7 @@ def getsummary():
 
 @app.route('/summary/content', methods=['GET'])
 def getcontent():
-    req= requests.get('http://localhost/article/content',json={"count" : 3} , auth=('admin@email.com', 'adminpassword'))
+    req= requests.get('http://localhost/article/content',json={"count" : 10} , auth=('admin@email.com', 'adminpassword'))
     value = req.json()
     fg = FeedGenerator()
     fg.title('A full feed')
@@ -54,7 +55,7 @@ def getcontent():
 
 @app.route('/summary/comments', methods=['GET'])
 def getcomments():
-    req= requests.get('http://localhost/article',json={"count" : 3} , auth=('admin@email.com', 'adminpassword'))
+    req= requests.get('http://localhost/article',json={"count" : 10} , auth=('admin@email.com', 'adminpassword'))
     value = req.json()
     fg = FeedGenerator()
     fg.title('A full feed')
