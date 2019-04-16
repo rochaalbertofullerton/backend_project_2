@@ -16,8 +16,8 @@ def postComment(article):
     keycomment = data["comment"]
     keyauthor = data["author"]
     keyurl = '/article/' + article
-    req = requests.get('http://localhost/article'+keyurl)
-
+    req = requests.get('http://localhost/article/'+article, auth=('admin@email.com', 'adminpassword'))
+    print(req.status_code)
     if req.status_code == 200:
         try:
             x.execute('INSERT INTO comments (comments_content, comments_articles_url, comments_users_author, comments_created) Values(?,?,?,?) ',(keycomment, keyurl,keyauthor,datetime.now(),))

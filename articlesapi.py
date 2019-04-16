@@ -1,4 +1,4 @@
-import flask, requests, sqlite3
+import flask, requests, sqlite3, json
 from datetime import datetime, date
 from flask import request , jsonify
 from flask_basicauth import BasicAuth 
@@ -121,13 +121,27 @@ def deleteArticle(article):
 def getArticleContent():
     conn = sqlite3.connect("articles.db")
     x = conn.cursor()
-    x.execute('SELECT articles.content , articles.author , tag.tag , comments.content FROM articles inner join tag on articles.url = tag.url inner join comments on tag.url = comments.url')
+    data = request.get_json()
+    key = data['count']
+    x.execute(' SELECT * FROM (SELECT articles_content, articles_url FROM articles ORDER BY articles_created DESC LIMIT ? )', (key,))
     value = x.fetchall()
+    re=[]
+    for t in value:
+
+        split = t[1].split('/')
+        #reqarticle=requests.get('http://localhost/article/'+split[2], auth=('admin@email.com', 'adminpassword'))
+        reqtag= requests.get('http://localhost/tag/'+split[2],json={"count" : key} , auth=('admin@email.com', 'adminpassword'))
+        reqcomment=requests.get('http://localhost/comment/'+split[2],json={"count" : key} , auth=('admin@email.com', 'adminpassword'))
+        c ={'content' : t[0],
+             'tag' :reqtag.json(), 
+            'count' :reqcomment.json()}
+        re.append(c)
+         
     x.close()
     if value == None:
         return jsonify("CONTENT NOT FOUND"), 402
     else:
-        return jsonify(value),200
+        return jsonify(re),200
 
 
 
