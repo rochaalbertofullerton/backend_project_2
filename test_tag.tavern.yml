@@ -58,7 +58,7 @@ stages:
 
   - name: Add a tag to an article that doesn't exist
     request:
-      url: "http://localhost/tag/TheNew"
+      url: "http://localhost/tag/The"
       auth:
         - studentb@email.com
         - student
