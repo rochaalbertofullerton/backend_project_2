@@ -62,12 +62,11 @@ def deleteArticle(article):
 
 #RETRIEVE THE A LIST URLS WITH A GIVEN TAG
 #Example ----> /tag/The Road Not Taken1 {Hit Enter}
-@app.route("/tag", methods=['GET'])
-def getarticleswithTag():
+@app.route("/tag/get/<path:article>", methods=['GET'])
+def getarticleswithTag(article):
     conn = sqlite3.connect("tags.db")
+    keytag = '/article/' + article
     x = conn.cursor()
-    data = request.get_json()
-    keytag = data['tag']
     x.execute('SELECT tags_articles_url  FROM tags WHERE tags_content=?', (keytag,))
     value = x.fetchall()
     if value != []:

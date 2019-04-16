@@ -64,7 +64,7 @@ def change_pwd():
        x.close()
        return jsonify("USER NOT FOUND"), 404
 
-@app.route('/users/auth', methods=['GET'])
+@app.route('/users/auth')
 def auth():
     conn = sqlite3.connect('users.db')
     x = conn.cursor()
@@ -74,9 +74,9 @@ def auth():
     a = {"status" : "ok"}
     b = {"status" : "bad" }
     if value[0]== hashlib.md5(auth.password.encode()).hexdigest():
-        return jsonify(a)
+        return jsonify(a),200
     else:
-        return jsonify(b)
+        return jsonify(b),403
 
 
     
