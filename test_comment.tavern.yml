@@ -33,7 +33,7 @@ stages:
 
   - name: Post an authenticated comment on an article
     request:
-      url: "http://localhost/Comment/TheWise"
+      url: "http://localhost/comment/TheWise"
       auth:
         - studentb@email.com
         - student

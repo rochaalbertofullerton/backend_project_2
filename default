@@ -28,7 +28,7 @@
 	upstream comment_server{
 		server  127.0.0.1:5200;
 		server 127.0.0.1:5201;
-		server 127.0.0.1:5223;
+		server 127.0.0.1:5202;
 	}
 	upstream tag_server{
 		server 127.0.0.1:5300;
